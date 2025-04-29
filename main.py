@@ -27,19 +27,15 @@ def get_answer(transcription):
     return "Nyihanganira, sinashoboye kumva neza ibyo wavuze! Subiramo neza."
 
 def process_microphone(audio):
-    # audio is a tuple: (sample_rate, data)
-    audio_path = "temp_audio.wav"
+    audio_path = "ibikenewe.wav"
     with open(audio_path, "wb") as f:
         f.write(audio)
 
-    # Transcribe
     transcription = transcribe_audio(audio_path)
     print("Recognized:", transcription)
 
-    # Find Answer
     answer = get_answer(transcription)
 
-    # Text-to-Speech
     tts = gTTS(text=answer, lang='rw')
     tts_output = "response_audio.mp3"
     tts.save(tts_output)
