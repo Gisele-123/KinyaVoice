@@ -4,18 +4,18 @@ import os
 import playsound
 
 qa_dict = {
-    "Muraho neza": "Yego",
-    "Witwa nde": "Nitwa Umufasha Wawe.",
-    "Abanyeshuri bazakora ikizamini cya leta ryari": "Abanyeshuri bazatangira gukora ikizamini cya leta muri gicurasi",
-    "Nibamara kwiga bazajya hehe": "Nibasoza nabo bazajya mubiruhuko barimo no gushaka amashuri ya kaminuza yo gukomerezamo",
-    "Andi makuru agezweho ni ayahe": "Andi makuru nuko iki gihembwe gifite ibyumweru icumi gusa",
+    "Muraho neza?": "Yego",
+    "Witwa nde?": "Nitwa Umufasha Wawe.",
+    "Abanyeshuri bazakora ikizamini cya leta ryari?": "Abanyeshuri bazatangira gukora ikizamini cya leta muri gicurasi",
+    "Nibamara kwiga bazajya hehe?": "Nibasoza nabo bazajya mubiruhuko barimo no gushaka amashuri ya kaminuza yo gukomerezamo",
+    "Andi makuru agezweho ni ayahe?": "Andi makuru nuko iki gihembwe gifite ibyumweru icumi gusa",
 }
 
 def get_answer(transcription):
     for question, answer in qa_dict.items():
         if question in transcription.lower():
             return answer
-    return "Nyihanganira simbashije kumva ikibazo cyawe"
+    return "Nyihanganira simbashije kumva ikibazo cyawe!"
 
 def speak_answer(answer_text):
     print("Speaking answer...")
