@@ -1,44 +1,61 @@
+import gradio as gr
 from asr_module import transcribe_audio
 from gtts import gTTS
-import os
-import playsound
+# import os
 
-qa_dict = {
-    "Muraho neza?": "Yego",
-    "Witwa nde?": "Nitwa Umufasha Wawe.",
-    "Abanyeshuri bazakora ikizamini cya leta ryari?": "Abanyeshuri bazatangira gukora ikizamini cya leta muri gicurasi",
-    "Nibamara kwiga bazajya hehe?": "Nibasoza nabo bazajya mubiruhuko barimo no gushaka amashuri ya kaminuza yo gukomerezamo",
-    "Andi makuru agezweho ni ayahe?": "Andi makuru nuko iki gihembwe gifite ibyumweru icumi gusa",
+responses_dict = {
+    "muraho neza": "Muraho neza nawe!",
+    "witwa nde": "Nitwa Umufasha Wawe.",
+    "abanyeshuri bazakora ikizamini cya leta ryari": "Bazatangira muri Gicurasi.",
+    "nimara kwiga bazajya hehe": "Bazajya gushaka amashuri ya kaminuza.",
+    "andi makuru agezweho ni ayahe": "Igihembwe gifite ibyumweru icumi gusa.",
+    "amakuru yawe": "Ni meza, urakoze kubaza.",
+    "ikaze": "Urakaza neza!",
+    "izina ry’igihugu cyacu": "Igihugu cyacu ni u RwFanda.",
+    "ikinyarwanda kirakomeye": "Yego, ariko gishimishije cyane.",
+    "bikorwa bite": "Bimeze neza, ndabashimira!",
+    "ufite amafaranga": "Oya, Nge ntayo mfite gusa wayashaka kuri banki",
+    "ufite imyaka ingahe": "Ntamyaka izwi mfite",
+    "ushobora kumbwira ikibazo mfite hano": "Kinyereke ubundi ngufashe"
 }
 
 def get_answer(transcription):
-    for question, answer in qa_dict.items():
-        if question in transcription.lower():
-            return answer
-    return "Nyihanganira simbashije kumva ikibazo cyawe!"
+    transcription = transcription.lower()
+    for key_text, response in responses_dict.items():
+        if key_text in transcription:
+            return response
+    return "Nyihanganira, sinashoboye kumva neza ibyo wavuze! Subiramo neza."
 
-def speak_answer(answer_text):
-    print("Speaking answer...")
-    tts = gTTS(text=answer_text, lang='rw') 
-    tts.save("answer.mp3")
-    playsound.playsound("answer.mp3")
-    os.remove("answer.mp3")  
+def process_microphone(audio):
+    # audio is a tuple: (sample_rate, data)
+    audio_path = "temp_audio.wav"
+    with open(audio_path, "wb") as f:
+        f.write(audio)
 
-def main():
-    audio_folder = "sample_audio"
-    audio_files = [f for f in os.listdir(audio_folder) if f.endswith(".wav")]
+    # Transcribe
+    transcription = transcribe_audio(audio_path)
+    print("Recognized:", transcription)
 
-    for audio_file in audio_files:
-        print("\nProcessing:", audio_file)
-        audio_path = os.path.join(audio_folder, audio_file)
+    # Find Answer
+    answer = get_answer(transcription)
 
-        transcription = transcribe_audio(audio_path)
-        print("Recognized Text:", transcription)
+    # Text-to-Speech
+    tts = gTTS(text=answer, lang='rw')
+    tts_output = "response_audio.mp3"
+    tts.save(tts_output)
 
-        answer = get_answer(transcription)
-        print("Assistant Answer:", answer)
+    return transcription, tts_output
 
-        speak_answer(answer)
+app = gr.Interface(
+    fn=process_microphone,
+    inputs=gr.Audio(source="microphone", type="filepath"),
+    outputs=[
+        gr.Textbox(label="Recognized Text"),
+        gr.Audio(label="Assistant Response")
+    ],
+    title="Kinyarwanda Voice Assistant",
+    description="Speak into the microphone in Kinyarwanda. The assistant will understand and reply!"
+)
 
 if __name__ == "__main__":
-    main()
+    app.launch()
