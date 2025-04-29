@@ -11,12 +11,12 @@ responses_dict = {
     "andi makuru agezweho ni ayahe": "Igihembwe gifite ibyumweru icumi gusa.",
     "amakuru yawe": "Ni meza, urakoze kubaza.",
     "ikaze": "Urakaza neza!",
-    "izina ry’igihugu cyacu": "Igihugu cyacu ni u RwFanda.",
+    "izina ry’igihugu cyacu": "Igihugu cyacu ni u Rwanda.",
     "ikinyarwanda kirakomeye": "Yego, ariko gishimishije cyane.",
-    "bikorwa bite": "Bimeze neza, ndabashimira!",
-    "ufite amafaranga": "Oya, Nge ntayo mfite gusa wayashaka kuri banki",
+    "bikorwa bite": "Ni ibiki ushaka gukora",
+    "ufite amafaranga": "Oya, Nge ntayo mfite gusa wayashakira kuri banki",
     "ufite imyaka ingahe": "Ntamyaka izwi mfite",
-    "ushobora kumbwira ikibazo mfite hano": "Kinyereke ubundi ngufashe"
+    "ushobora kumbwira ikibazo mfite hano": "Kinyereke ubundi ngufashe kumenya ikibazo ufite"
 }
 
 def get_answer(transcription):
@@ -44,7 +44,7 @@ def process_microphone(audio):
 
 app = gr.Interface(
     fn=process_microphone,
-    inputs=gr.Audio(source="microphone", type="filepath"),
+    inputs=gr.Audio(type="filepath"),
     outputs=[
         gr.Textbox(label="Recognized Text"),
         gr.Audio(label="Assistant Response")
@@ -54,4 +54,4 @@ app = gr.Interface(
 )
 
 if __name__ == "__main__":
-    app.launch()
+    app.launch(share=True)
