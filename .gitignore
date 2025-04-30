@@ -1,2 +1,11 @@
 .env
 # /sample_audio/
+__pycache__/
+*.pyc
+*.mp3
+*.csv
+*.pt
+.env
+kinya-env/
+KinyaTTS/
+transcription_log.csv

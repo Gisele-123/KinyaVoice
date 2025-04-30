@@ -1,67 +1,61 @@
+# app.py
+
 import gradio as gr
-from asr_module import transcribe_audio
-from gtts import gTTS
 import os
+import tempfile
+import soundfile as sf
+from tts_module import setup_kinya_tts, synthesize_tts
+from stt_module import transcribe_audio
+from nlp_module import get_response
 
-responses_dict = {
-    "muraho neza": "Muraho neza nawe!",
-    "witwa nde": "Nitwa Umufasha Wawe.",
-    "abanyeshuri bazakora ikizamini cya leta ryari": "Bazatangira muri Gicurasi.",
-    "nimara kwiga bazajya hehe": "Bazajya gushaka amashuri ya kaminuza.",
-    "andi makuru agezweho ni ayahe": "Igihembwe gifite ibyumweru icumi gusa.",
-    "amakuru yawe": "Ni meza, urakoze kubaza.",
-    "ikaze": "Urakaza neza!",
-    "izina ry’igihugu cyacu": "Igihugu cyacu ni u Rwanda.",
-    "ikinyarwanda kirakomeye": "Yego, ariko gishimishije cyane.",
-    "bikorwa bite": "Ni ibiki ushaka gukora",
-    "ufite amafaranga": "Oya, Nge ntayo mfite gusa wayashakira kuri banki",
-    "ufite imyaka ingahe": "Ntamyaka izwi mfite",
-    "umeze neza": "Yego meze neza. Wowe umeze ute?",
-    "ushobora kumbwira ikibazo mfite hano": "Kinyereke ubundi ngufashe kumenya ikibazo ufite"
-}
+setup_kinya_tts()
 
-def get_answer(transcription):
-    transcription = transcription.lower()
-    for key_text, response in responses_dict.items():
-        if key_text in transcription:
-            return response
-    return "Nyihanganira, sinashoboye kumva neza ibyo wavuze! Subiramo neza."
-
-def process_microphone(audio):
-    try:
-        audio_path = "ibikenewe.wav"
-        
-        with open(audio, "rb") as f:
-            audio_data = f.read() 
-        
-        with open(audio_path, "wb") as f:
-            f.write(audio_data) 
-
-        transcription = transcribe_audio(audio_path)
-        print("Recognized:", transcription)
-
-        answer = get_answer(transcription)
-
-        tts = gTTS(text=answer, lang='rw')
-        tts_output = "response_audio.mp3"
-        tts.save(tts_output)
-
-        return transcription, tts_output
+def process_audio(audio_input):
+    """Handle both microphone input and file uploads"""
+    temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+    temp_path = temp_file.name
+    temp_file.close()
     
+    try:
+        if isinstance(audio_input, dict):
+            sf.write(temp_path, audio_input["array"], audio_input["sampling_rate"])
+        elif isinstance(audio_input, str):
+            temp_path = audio_input
+        else:
+            raise ValueError("Unsupported audio input format")
+        
+        transcriptions = transcribe_audio([temp_path])
+        transcription_text = transcriptions[0].text if hasattr(transcriptions[0], 'text') else str(transcriptions[0])
+        
+        response_text = get_response(transcription_text)
+        response_audio = synthesize_tts(response_text)
+        
+        return transcription_text, response_audio
+        
     except Exception as e:
-        print(f"Error occurred: {e}")
-        return "Error processing your request. Please try again.", None
+        print(f"Error: {e}")
+        return None, "Habaye ikosa, ongera ugerageze!"
+    finally:
+        if os.path.exists(temp_path) and temp_path != audio_input:
+            os.unlink(temp_path)
 
-app = gr.Interface(
-    fn=process_microphone,
-    inputs=gr.Audio(type="filepath"),
-    outputs=[
-        gr.Textbox(label="Recognized Text"),
-        gr.Audio(label="Assistant Response")
-    ],
-    title="Kinyarwanda Voice Assistant",
-    description="Speak into the microphone in Kinyarwanda. The assistant will understand and reply!"
-)
+with gr.Blocks(title="KinyarwandaVoice") as demo:
+    gr.Markdown("# 🎙️ KinyarwandaVoice")
+    
+    with gr.Tab("🎤 Reba"):
+        mic_input = gr.Audio(sources=["microphone"], type="filepath", label="Reba amajwi yawe")
+        mic_button = gr.Button("Ohereza")
+    
+    with gr.Tab("📁 Shyiramo fayilo"):
+        file_input = gr.Audio(sources=["upload"], type="filepath", label="Uplode fayilo ya audio")
+        file_button = gr.Button("Ohereza")
+    
+    with gr.Column():
+        transcription = gr.Textbox(label="Uvuze ibi ")
+        response = gr.Audio(label="Igisubizo", autoplay=True)
+    
+    mic_button.click(process_audio, inputs=mic_input, outputs=[transcription, response])
+    file_button.click(process_audio, inputs=file_input, outputs=[transcription, response])
 
 if __name__ == "__main__":
-    app.launch(share=True)
+    demo.launch()

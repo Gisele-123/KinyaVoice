@@ -25,6 +25,7 @@ We achieve this by using:
 - A basic **NLP matching** technique,
 - **gTTS** (Google Text-to-Speech) for voice response.
 - **Gradio** for rendering in web
+- **KinyaTTS** https://github.com/anzeyimana/KinyaTTS
 
 ---
 

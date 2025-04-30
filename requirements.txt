@@ -67,6 +67,14 @@ django-extensions==3.0.3
 djangorestframework==3.15.1
 djangorestframework-simplejwt==5.3.1
 docopt==0.6.2
+fastapi==0.89.1
+uvicorn==0.20.0
+python-multipart==0.0.5
+nemo_toolkit[asr]
+pydub==0.25.1
+pyaudioconvert==0.0.5
+pytest==7.2.1
+httpx==0.23.3
 docutils==0.21.2
 emoji==2.12.1
 executing==2.2.0
