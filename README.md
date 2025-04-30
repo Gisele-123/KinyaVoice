@@ -24,6 +24,7 @@ We achieve this by using:
 - **KinyaWhisper** ASR model (via Hugging Face),
 - A basic **NLP matching** technique,
 - **gTTS** (Google Text-to-Speech) for voice response.
+- **Gradio** for rendering in web
 
 ---
 
