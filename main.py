@@ -1,7 +1,7 @@
 import gradio as gr
 from asr_module import transcribe_audio
 from gtts import gTTS
-# import os
+import os
 
 responses_dict = {
     "muraho neza": "Muraho neza nawe!",
@@ -16,6 +16,7 @@ responses_dict = {
     "bikorwa bite": "Ni ibiki ushaka gukora",
     "ufite amafaranga": "Oya, Nge ntayo mfite gusa wayashakira kuri banki",
     "ufite imyaka ingahe": "Ntamyaka izwi mfite",
+    "umeze neza": "Yego meze neza. Wowe umeze ute?",
     "ushobora kumbwira ikibazo mfite hano": "Kinyereke ubundi ngufashe kumenya ikibazo ufite"
 }
 
@@ -27,21 +28,34 @@ def get_answer(transcription):
     return "Nyihanganira, sinashoboye kumva neza ibyo wavuze! Subiramo neza."
 
 def process_microphone(audio):
-    audio_path = "ibikenewe.wav"
-    with open(audio_path, "wb") as f:
-        f.write(audio)
+    try:
+        audio_path = "ibikenewe.wav"
+        
+        with open(audio, "rb") as f:
+            audio_data = f.read() 
+        
+        with open(audio_path, "wb") as f:
+            f.write(audio_data)  # Write the audio data to the local file
 
-    transcription = transcribe_audio(audio_path)
-    print("Recognized:", transcription)
+        # Try to transcribe audio
+        transcription = transcribe_audio(audio_path)
+        print("Recognized:", transcription)
 
-    answer = get_answer(transcription)
+        # Get response based on transcription
+        answer = get_answer(transcription)
 
-    tts = gTTS(text=answer, lang='rw')
-    tts_output = "response_audio.mp3"
-    tts.save(tts_output)
+        # Convert text to speech
+        tts = gTTS(text=answer, lang='rw')
+        tts_output = "response_audio.mp3"
+        tts.save(tts_output)
 
-    return transcription, tts_output
+        return transcription, tts_output
+    
+    except Exception as e:
+        print(f"Error occurred: {e}")
+        return "Error processing your request. Please try again.", None
 
+# Setting up Gradio interface
 app = gr.Interface(
     fn=process_microphone,
     inputs=gr.Audio(type="filepath"),

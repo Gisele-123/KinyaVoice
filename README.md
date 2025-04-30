@@ -8,6 +8,10 @@ https://commonvoice.mozilla.org/rw/datasets
 ## Shareablle link og gradio which expires in one week
 ![alt sharebalelink](image.png)
 
+## Interface
+![alt text](image-1.png)
+
+
 ## 📚 Project Overview
 
 This project simulates a basic humanoid robot's ability to:
