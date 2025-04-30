@@ -35,16 +35,13 @@ def process_microphone(audio):
             audio_data = f.read() 
         
         with open(audio_path, "wb") as f:
-            f.write(audio_data)  # Write the audio data to the local file
+            f.write(audio_data) 
 
-        # Try to transcribe audio
         transcription = transcribe_audio(audio_path)
         print("Recognized:", transcription)
 
-        # Get response based on transcription
         answer = get_answer(transcription)
 
-        # Convert text to speech
         tts = gTTS(text=answer, lang='rw')
         tts_output = "response_audio.mp3"
         tts.save(tts_output)
@@ -55,7 +52,6 @@ def process_microphone(audio):
         print(f"Error occurred: {e}")
         return "Error processing your request. Please try again.", None
 
-# Setting up Gradio interface
 app = gr.Interface(
     fn=process_microphone,
     inputs=gr.Audio(type="filepath"),
